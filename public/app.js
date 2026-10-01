@@ -11,7 +11,7 @@ async function api(path, options={}) {
     headers: {"content-type":"application/json", ...(options.headers||{})}
   });
   const data = res.status === 204 ? {} : await res.json();
-  if (!res.ok) throw new Error(data.error || "요청에 실패했습니다.");
+  if (!res.ok) throw new Error(data.detail || data.error || "요청에 실패했습니다.");;
   return data;
 }
 
