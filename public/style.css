@@ -427,3 +427,61 @@ button{
     grid-template-columns:repeat(4,1fr);
   }
 }
+.odd-even-card{
+  background:#fff;
+  border:1px solid #d1eaf4;
+  border-radius:22px;
+  padding:30px 20px;
+  text-align:center;
+  box-shadow:0 8px 25px #4db5d910;
+}
+
+.odd-even-number{
+  width:120px;
+  height:120px;
+  margin:10px auto 20px;
+  border-radius:50%;
+  background:#eaf8ff;
+  display:grid;
+  place-items:center;
+  font-size:55px;
+  font-weight:900;
+  color:#1599d1;
+}
+
+.odd-even-card p{
+  color:#678492;
+  font-size:14px;
+  min-height:22px;
+  line-height:1.7;
+}
+
+.odd-even-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:20px;
+}
+
+.odd-even-btn{
+  border:0;
+  border-radius:15px;
+  padding:17px;
+  background:#52b9e8;
+  color:white;
+  font-size:20px;
+  font-weight:900;
+}
+
+.odd-even-btn:active{
+  transform:scale(.96);
+}
+
+.game-back{
+  margin-top:20px;
+  border:0;
+  background:#eefaff;
+  color:#168fbf;
+  border-radius:12px;
+  padding:11px 18px;
+}
