@@ -376,3 +376,70 @@ $("#logoutBtn").addEventListener(
 ========================= */
 
 enter().catch(() => {});
+enter().catch(() => {});
+/* =========================
+   하단 메뉴
+========================= */
+
+const homePage = $("#homePage");
+const gamePage = $("#gamePage");
+
+document.querySelectorAll(".bottom-nav button").forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const page = btn.dataset.page;
+
+    document
+      .querySelectorAll(".bottom-nav button")
+      .forEach(x => x.classList.remove("active"));
+
+    btn.classList.add("active");
+
+
+    if (page === "home") {
+
+      homePage.classList.remove("hidden");
+      gamePage.classList.add("hidden");
+
+      return;
+    }
+
+
+    if (page === "game") {
+
+      homePage.classList.add("hidden");
+      gamePage.classList.remove("hidden");
+
+      return;
+    }
+
+
+    /* 아직 만들지 않은 메뉴 */
+
+    homePage.classList.add("hidden");
+    gamePage.classList.add("hidden");
+
+    alert("이 메뉴는 곧 열립니다 💙");
+  });
+
+});
+
+
+/* =========================
+   게임 선택
+========================= */
+
+document.querySelectorAll(".game-card").forEach(btn => {
+
+  btn.addEventListener("click", () => {
+
+    const game =
+      btn.dataset.game;
+
+    $("#gameMessage").textContent =
+      `🎮 ${game}을(를) 준비하고 있어요!`;
+
+  });
+
+});
