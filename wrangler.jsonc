@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "hani-db",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+      "database_id": "cf7ce553-2076-4549-ad92-71632b49b380"
     }
   ]
 }
