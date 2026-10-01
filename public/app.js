@@ -4,13 +4,13 @@ let currentCharacter = null;
 let gameTimer = null;
 
 function showMessage(el, text, error=false){
-  if(!el)return;
-  el.textContent=text;
-  el.style.color=error?"#df5c70":"#168fbf";
+  if(!el) return;
+  el.textContent = text;
+  el.style.color = error ? "#df5c70" : "#168fbf";
 }
 
 async function api(path, options={}){
-  const res=await fetch(path,{
+  const res = await fetch(path,{
     ...options,
     headers:{
       "content-type":"application/json",
@@ -18,79 +18,126 @@ async function api(path, options={}){
     }
   });
 
-  const data=res.status===204?{}:await res.json();
+  const data = res.status===204 ? {} : await res.json();
 
   if(!res.ok){
-    throw new Error(data.detail||data.error||"요청에 실패했습니다.");
+    throw new Error(
+      data.detail ||
+      data.error ||
+      "요청에 실패했습니다."
+    );
   }
 
   return data;
 }
 
+
+/* =========================
+   캐릭터
+========================= */
+
 function updateHaniSize(c){
   const avatar=$(".avatar");
+
   if(!avatar)return;
 
   const size=Number(c.bodySize)||1;
-  const scale=Math.min(2.15,1+(size-1)*0.065);
 
-  avatar.style.fontSize=`${Math.min(60,34+size*1.25)}px`;
-  avatar.style.transform=`scale(${scale})`;
+  const scale=Math.min(
+    2.15,
+    1+(size-1)*0.065
+  );
+
+  avatar.style.fontSize=
+    `${Math.min(60,34+size*1.25)}px`;
+
+  avatar.style.transform=
+    `scale(${scale})`;
 }
 
+
 function render(c){
+
   if(!c)return;
 
   currentCharacter=c;
 
   if($("#generation"))
-    $("#generation").textContent=`토끼콩 · ${c.generation}세대`;
+    $("#generation").textContent=
+      `토끼콩 · ${c.generation}세대`;
 
   if($("#characterName"))
-    $("#characterName").textContent=c.characterName;
+    $("#characterName").textContent=
+      c.characterName;
 
   if($("#level"))
-    $("#level").textContent=c.level;
+    $("#level").textContent=
+      c.level;
 
   if($("#points"))
-    $("#points").textContent=`${c.points.toLocaleString()}P`;
+    $("#points").textContent=
+      `${c.points.toLocaleString()}P`;
 
   if($("#stamina"))
-    $("#stamina").textContent=c.stamina;
+    $("#stamina").textContent=
+      c.stamina;
 
   if($("#fullness"))
-    $("#fullness").textContent=c.fullness;
+    $("#fullness").textContent=
+      c.fullness;
 
   if($("#bodySize"))
-    $("#bodySize").textContent=c.bodySize;
+    $("#bodySize").textContent=
+      c.bodySize;
 
   if($("#todayActions"))
-    $("#todayActions").textContent=c.todayActions;
+    $("#todayActions").textContent=
+      c.todayActions;
 
-  const base=(c.level-1)*1000;
+  const base=
+    (c.level-1)*1000;
 
-  const progress=Math.max(
-    0,
-    Math.min(100,((c.points-base)/1000)*100)
-  );
+  const progress=
+    Math.max(
+      0,
+      Math.min(
+        100,
+        ((c.points-base)/1000)*100
+      )
+    );
 
   if($("#levelProgress"))
-    $("#levelProgress").style.width=`${progress}%`;
+    $("#levelProgress").style.width=
+      `${progress}%`;
 
   if($("#nextLevel"))
     $("#nextLevel").textContent=
-      `${Math.max(0,c.level*1000-c.points).toLocaleString()}P`;
+      `${Math.max(
+        0,
+        c.level*1000-c.points
+      ).toLocaleString()}P`;
 
   updateHaniSize(c);
 }
 
+
 async function refreshMe(){
-  const data=await api("/api/me");
+
+  const data=
+    await api("/api/me");
+
   render(data.character);
+
   return data.character;
 }
 
+
+/* =========================
+   페이지
+========================= */
+
 function hideAllPages(){
+
   $("#homePage")?.classList.add("hidden");
   $("#gamePage")?.classList.add("hidden");
   $("#territoryPage")?.classList.add("hidden");
@@ -98,62 +145,123 @@ function hideAllPages(){
   $("#recordPage")?.classList.add("hidden");
 }
 
+
 function setNav(page){
+
   document
     .querySelectorAll(".bottom-nav button")
-    .forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+    .forEach(b=>{
+      b.classList.toggle(
+        "active",
+        b.dataset.page===page
+      );
+    });
 }
 
+
 function showHome(){
+
   hideAllPages();
+
   $("#homePage")?.classList.remove("hidden");
+
   setNav("home");
 }
 
+
 function showGames(){
+
   hideAllPages();
+
   $("#gamePage")?.classList.remove("hidden");
+
   setNav("game");
+
   renderGameList();
 }
 
+
 function showSimplePage(page){
+
   hideAllPages();
-  $(`#${page}Page`)?.classList.remove("hidden");
+
+  $(`#${page}Page`)
+    ?.classList.remove("hidden");
+
   setNav(page);
 }
 
+
 function backGames(){
+
   if(gameTimer){
+
     clearInterval(gameTimer);
+
     gameTimer=null;
   }
 
   showGames();
 }
 
+
+/* =========================
+   게임 공통
+========================= */
+
 function gameHeader(title,desc){
+
   return `
     <main class="game-view">
+
       <div class="game-title">
+
         <h2>${title}</h2>
+
         <p>${desc}</p>
+
       </div>
+
       <div id="gameMount"></div>
+
     </main>
   `;
 }
 
-function renderGameList(){
+
+function shell(title,desc,inner){
+
   const gp=$("#gamePage");
+
+  gp.innerHTML=
+    gameHeader(title,desc);
+
+  $("#gameMount").innerHTML=`
+    <div class="game-panel">
+      ${inner}
+    </div>
+  `;
+}
+
+
+function renderGameList(){
+
+  const gp=$("#gamePage");
+
   if(!gp)return;
 
   gp.innerHTML=`
+
     <main class="game-view">
 
       <div class="game-title">
+
         <h2>🎮 하니 게임방</h2>
-        <p>게임하고 하니력을 올려보세요!</p>
+
+        <p>
+          게임하고 하니력을 올려보세요!
+        </p>
+
       </div>
 
       <div class="game-grid">
@@ -166,34 +274,60 @@ function renderGameList(){
           ["테트리스","🟦","블록을 쌓아보세요"],
           ["오목","⚫","하니와 오목 한판"],
           ["테트리스대전","⚔️","하니 AI와 대결"],
-          ["사천성대전","🀄","같은 패 2개를 연결하기"],
+          ["사천성대전","🀄","같은 패 2개 연결"],
           ["하니도쿠","🔢","숫자 퍼즐"]
         ]
         .map(x=>`
-          <button class="game-card" data-game="${x[0]}">
-            <span class="game-icon">${x[1]}</span>
-            <strong>${x[0]}</strong>
-            <span>${x[2]}</span>
+
+          <button
+            class="game-card"
+            data-game="${x[0]}"
+          >
+
+            <span class="game-icon">
+              ${x[1]}
+            </span>
+
+            <strong>
+              ${x[0]}
+            </strong>
+
+            <span>
+              ${x[2]}
+            </span>
+
           </button>
+
         `)
         .join("")}
 
       </div>
 
-      <p id="gameMessage" class="game-message"></p>
+      <p
+        id="gameMessage"
+        class="game-message"
+      ></p>
 
     </main>
   `;
 
+
   document
     .querySelectorAll(".game-card")
     .forEach(b=>{
+
       b.addEventListener(
         "click",
-        ()=>launchGame(b.dataset.game)
+        ()=>{
+          launchGame(
+            b.dataset.game
+          );
+        }
       );
+
     });
 }
+
 
 function launchGame(game){
 
@@ -225,20 +359,29 @@ function launchGame(game){
     return startSudoku();
 }
 
-async function rewardGame(game,points){
+
+/* =========================
+   보상
+========================= */
+
+async function rewardGame(
+  game,
+  points
+){
 
   try{
 
-    const data=await api(
-      "/api/game/reward",
-      {
-        method:"POST",
-        body:JSON.stringify({
-          game,
-          points
-        })
-      }
-    );
+    const data=
+      await api(
+        "/api/game/reward",
+        {
+          method:"POST",
+          body:JSON.stringify({
+            game,
+            points
+          })
+        }
+      );
 
     render(data.character);
 
@@ -255,19 +398,6 @@ async function rewardGame(game,points){
   }
 }
 
-function shell(title,desc,inner){
-
-  const gp=$("#gamePage");
-
-  gp.innerHTML=gameHeader(title,desc);
-
-  $("#gameMount").innerHTML=`
-    <div class="game-panel">
-      ${inner}
-    </div>
-  `;
-}
-
 
 /* =========================
    홀짝
@@ -279,56 +409,98 @@ function startOddEven(){
     "🪙 홀짝",
     "맞히면 +100P",
     `
-      <div class="big-number" id="oeNum">?</div>
 
-      <div id="gameResult" class="result">
+      <div
+        class="big-number"
+        id="oeNum"
+      >
+        ?
+      </div>
+
+      <div
+        id="gameResult"
+        class="result"
+      >
         홀 또는 짝을 선택하세요!
       </div>
 
       <div class="game-buttons">
 
-        <button class="game-btn" id="oeOdd">
+        <button
+          class="game-btn"
+          id="oeOdd"
+        >
           홀
         </button>
 
-        <button class="game-btn" id="oeEven">
+        <button
+          class="game-btn"
+          id="oeEven"
+        >
           짝
         </button>
 
       </div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
 
-  $("#oeOdd").onclick=()=>playOE("odd");
-  $("#oeEven").onclick=()=>playOE("even");
-  $("#gameBack").onclick=backGames;
+
+  $("#oeOdd").onclick=
+    ()=>playOE("odd");
+
+  $("#oeEven").onclick=
+    ()=>playOE("even");
+
+  $("#gameBack").onclick=
+    backGames;
 }
+
 
 async function playOE(answer){
 
-  const n=Math.floor(Math.random()*20)+1;
-  const actual=n%2?"odd":"even";
+  const n=
+    Math.floor(Math.random()*20)+1;
+
+  const actual=
+    n%2 ? "odd" : "even";
 
   $("#oeNum").textContent=n;
 
-  const ok=answer===actual;
+  const ok=
+    answer===actual;
 
   $("#gameResult").innerHTML=
     ok
-      ? `🎉 정답! ${n}은 ${
-          actual==="odd"?"홀수":"짝수"
-        }예요.<br>
-        <span class="score">+100P</span>`
-      : `😢 ${n}은 ${
-          actual==="odd"?"홀수":"짝수"
-        }예요.`;
+
+      ? `
+        🎉 정답!
+        ${n}은
+        ${actual==="odd"?"홀수":"짝수"}예요.
+        <br>
+        <span class="score">
+          +100P
+        </span>
+      `
+
+      : `
+        😢
+        ${n}은
+        ${actual==="odd"?"홀수":"짝수"}예요.
+      `;
 
   if(오케이)
-    await rewardGame("홀짝",100);
+    await rewardGame(
+      "홀짝",
+      100
+    );
 }
 
 
@@ -342,48 +514,85 @@ function startApple(){
 
   shell(
     "🍎 사과게임",
-    "사과 10개를 15초 안에 눌러보세요! (성공 +150P)",
+    "사과 10개를 15초 안에 눌러보세요!",
     `
+
       <div>
+
         <span class="status-pill">
-          남은 시간 <b id="appleTime">15</b>초
+
+          남은 시간
+          <b id="appleTime">
+            15
+          </b>
+          초
+
         </span>
 
         <span class="status-pill">
-          수집 <b id="appleCount">0</b>/10
+
+          수집
+          <b id="appleCount">
+            0
+          </b>
+          /10
+
         </span>
+
       </div>
 
-      <div class="apple-grid" id="appleGrid"></div>
+      <div
+        class="apple-grid"
+        id="appleGrid"
+      ></div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
+
 
   let count=0;
   let time=15;
   let done=false;
 
-  const grid=$("#appleGrid");
+  const grid=
+    $("#appleGrid");
+
 
   for(let i=0;i<total;i++){
 
-    const b=document.createElement("button");
+    const b=
+      document.createElement("button");
 
     b.className="apple";
-    b.textContent=i<10?"🍎":"·";
-    b.dataset.apple=i<10?"1":"0";
+
+    b.textContent=
+      i<10 ? "🍎" : "·";
+
+    b.dataset.apple=
+      i<10 ? "1" : "0";
 
     grid.appendChild(b);
   }
 
+
   [...grid.children]
     .sort(()=>Math.random()-.5)
-    .forEach(b=>grid.appendChild(b));
+    .forEach(b=>
+      grid.appendChild(b)
+    );
+
 
   grid
     .querySelectorAll(".apple")
@@ -395,14 +604,19 @@ function startApple(){
           done ||
           b.classList.contains("done") ||
           b.dataset.apple!=="1"
-        )return;
+        ){
+          return;
+        }
 
         b.classList.add("done");
+
         b.textContent="✓";
 
         count++;
 
-        $("#appleCount").textContent=count;
+        $("#appleCount")
+          .textContent=count;
+
 
         if(count===10){
 
@@ -411,31 +625,50 @@ function startApple(){
           clearInterval(gameTimer);
 
           $("#gameResult").innerHTML=
-            "🎉 성공! <span class='score'>+150P</span>";
+            `
+              🎉 성공!
+              <span class="score">
+                +150P
+              </span>
+            `;
 
-          await rewardGame("사과게임",150);
+          await rewardGame(
+            "사과게임",
+            150
+          );
         }
       };
+
     });
 
-  gameTimer=setInterval(async()=>{
 
-    time--;
+  gameTimer=
+    setInterval(()=>{
 
-    $("#appleTime").textContent=time;
+      time--;
 
-    if(time<=0&&!done){
+      $("#appleTime")
+        .textContent=time;
 
-      done=true;
+      if(
+        time<=0 &&
+        !done
+      ){
 
-      clearInterval(gameTimer);
+        done=true;
 
-      $("#gameResult").textContent="시간 초과!";
-    }
+        clearInterval(gameTimer);
 
-  },1000);
+        $("#gameResult")
+          .textContent=
+            "시간 초과!";
+      }
 
-  $("#gameBack").onclick=backGames;
+    },1000);
+
+
+  $("#gameBack").onclick=
+    backGames;
 }
 
 
@@ -452,19 +685,31 @@ function startMines(){
     "💣 지뢰찾기",
     "지뢰를 모두 피하면 +250P",
     `
+
       <div class="status-pill">
         안전칸을 모두 열어보세요
       </div>
 
-      <div class="mine-grid" id="mineGrid"></div>
+      <div
+        class="mine-grid"
+        id="mineGrid"
+      ></div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
+
 
   const cells=
     Array.from(
@@ -476,31 +721,51 @@ function startMines(){
       })
     );
 
+
   cells
     .sort(()=>Math.random()-.5)
     .slice(0,mines)
-    .forEach(c=>c.m=true);
+    .forEach(c=>
+      c.m=true
+    );
 
-  const grid=$("#mineGrid");
+
+  const grid=
+    $("#mineGrid");
 
   let safe=0;
   let lost=false;
 
+
   function adjacent(i){
 
-    const r=Math.floor(i/size);
-    const col=i%size;
+    const r=
+      Math.floor(i/size);
+
+    const col=
+      i%size;
 
     let n=0;
 
-    for(let dr=-1;dr<=1;dr++){
 
-      for(let dc=-1;dc<=1;dc++){
+    for(
+      let dr=-1;
+      dr<=1;
+      dr++
+    ){
 
-        if(!dr&&!dc)continue;
+      for(
+        let dc=-1;
+        dc<=1;
+        dc++
+      ){
+
+        if(!dr&&!dc)
+          continue;
 
         const rr=r+dr;
         const cc=col+dc;
+
 
         if(
           rr>=0 &&
@@ -511,25 +776,35 @@ function startMines(){
         ){
           n++;
         }
+
       }
     }
 
     return n;
   }
 
+
   cells.forEach(c=>{
 
-    const b=document.createElement("button");
+    const b=
+      document.createElement("button");
 
     b.className="mine";
 
+
     b.onclick=async()=>{
 
-      if(lost||c.o)return;
+      if(
+        lost ||
+        c.o
+      ){
+        return;
+      }
 
       c.o=true;
 
       b.classList.add("open");
+
 
       if(c.m){
 
@@ -537,39 +812,58 @@ function startMines(){
 
         b.textContent="💣";
 
-        $("#gameResult").textContent=
-          "💥 지뢰를 밟았어요!";
+        $("#gameResult")
+          .textContent=
+            "💥 지뢰를 밟았어요!";
 
         cells
           .filter(x=>x.m)
           .forEach(x=>{
-            grid.children[x.i].textContent="💣";
+            grid.children[x.i]
+              .textContent="💣";
           });
 
       }else{
 
         safe++;
 
-        const n=adjacent(c.i);
+        const n=
+          adjacent(c.i);
 
-        b.textContent=n||"·";
+        b.textContent=
+          n || "·";
 
-        if(safe===cells.length-mines){
+
+        if(
+          safe===cells.length-mines
+        ){
 
           lost=true;
 
-          $("#gameResult").innerHTML=
-            "🎉 클리어! <span class='score'>+250P</span>";
+          $("#gameResult")
+            .innerHTML=
+              `
+                🎉 클리어!
+                <span class="score">
+                  +250P
+                </span>
+              `;
 
-          await rewardGame("지뢰찾기",250);
+          await rewardGame(
+            "지뢰찾기",
+            250
+          );
         }
       }
     };
 
+
     grid.appendChild(b);
   });
 
-  $("#gameBack").onclick=backGames;
+
+  $("#gameBack").onclick=
+    backGames;
 }
 
 
@@ -586,66 +880,117 @@ function startBlocks(){
     "🧱 블록게임",
     "파란 블록 10개를 찾아 누르면 +120P",
     `
+
       <div class="status-pill">
+
         남은 파란 블록
-        <b id="blockLeft">${target}</b>
+        <b id="blockLeft">
+          ${target}
+        </b>
+
       </div>
 
-      <div class="block-board" id="blockBoard"></div>
+      <div
+        class="block-board"
+        id="blockBoard"
+      ></div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
 
-  const board=$("#blockBoard");
 
-  const active=new Set();
+  const board=
+    $("#blockBoard");
 
-  while(active.size<target){
+  const active=
+    new Set();
+
+
+  while(
+    active.size<target
+  ){
+
     active.add(
-      Math.floor(Math.random()*size)
+      Math.floor(
+        Math.random()*size
+      )
     );
+
   }
+
 
   let hit=0;
 
-  for(let i=0;i<size;i++){
 
-    const b=document.createElement("button");
+  for(
+    let i=0;
+    i<size;
+    i++
+  ){
 
-    b.className="block-cell";
+    const b=
+      document.createElement("button");
+
+    b.className=
+      "block-cell";
+
 
     b.onclick=async()=>{
 
       if(
         !active.has(i) ||
         b.classList.contains("on")
-      )return;
+      ){
+        return;
+      }
 
       b.classList.add("on");
 
       hit++;
 
-      $("#blockLeft").textContent=
-        target-hit;
+      $("#blockLeft")
+        .textContent=
+          target-hit;
+
 
       if(hit===target){
 
-        $("#gameResult").innerHTML=
-          "🎉 전부 찾았어요! <span class='score'>+120P</span>";
+        $("#gameResult")
+          .innerHTML=
+            `
+              🎉 전부 찾았어요!
+              <span class="score">
+                +120P
+              </span>
+            `;
 
-        await rewardGame("블록게임",120);
+        await rewardGame(
+          "블록게임",
+          120
+        );
       }
+
     };
+
 
     board.appendChild(b);
   }
 
-  $("#gameBack").onclick=backGames;
+
+  $("#gameBack").onclick=
+    backGames;
 }
 
 
@@ -664,42 +1009,72 @@ function startTetris(battle=false){
       :"🟦 싱글 테트리스",
     "줄을 3개 만들면 +300P",
     `
+
       <div class="status-pill">
+
         내 점수
-        <b id="tScore">0</b>
+        <b id="tScore">
+          0
+        </b>
 
         ${
           battle
-            ?" · 하니 <b id='aiScore'>0</b>"
+            ?`
+              · 하니
+              <b id="aiScore">
+                0
+              </b>
+            `
             :""
         }
+
       </div>
 
-      <div class="tetris" id="tetris"></div>
+      <div
+        class="tetris"
+        id="tetris"
+      ></div>
 
       <div class="tetris-controls">
 
-        <button class="game-btn alt" id="tLeft">
+        <button
+          class="game-btn alt"
+          id="tLeft"
+        >
           ◀
         </button>
 
-        <button class="game-btn" id="tDrop">
+        <button
+          class="game-btn"
+          id="tDrop"
+        >
           ▼
         </button>
 
-        <button class="game-btn alt" id="tRight">
+        <button
+          class="game-btn alt"
+          id="tRight"
+        >
           ▶
         </button>
 
       </div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
+
 
   const board=
     Array.from(
@@ -707,52 +1082,67 @@ function startTetris(battle=false){
       ()=>false
     );
 
+
   let score=0;
   let lines=0;
-  let aiScore=0;
-
   let x=4;
   let y=0;
-
   let ended=false;
+
 
   function draw(){
 
-    const el=$("#tetris");
+    const el=
+      $("#tetris");
 
     el.innerHTML="";
 
-    for(let i=0;i<H*W;i++){
 
-      const b=document.createElement("div");
+    for(
+      let i=0;
+      i<H*W;
+      i++
+    ){
+
+      const b=
+        document.createElement("div");
 
       b.className=
-        "tcell"+(board[i]?" fill":"");
+        "tcell"+
+        (board[i]?" fill":"");
 
       el.appendChild(b);
     }
   }
 
+
   function lock(){
 
-    for(let k=0;k<3;k++){
+    for(
+      let k=0;
+      k<3;
+      k++
+    ){
 
       const yy=y+k;
 
       if(yy<H){
 
-        board[
-          yy*W+
+        const xx=
           Math.max(
             0,
             Math.min(
               W-1,
               x+(k%2)
             )
-          )
+          );
+
+        board[
+          yy*W+xx
         ]=true;
       }
     }
+
 
     score+=10;
     lines++;
@@ -760,21 +1150,30 @@ function startTetris(battle=false){
     y=0;
     x=4;
 
+
     if(lines>=3){
 
       ended=true;
 
       score+=270;
 
-      $("#tScore").textContent=score;
+      $("#tScore")
+        .textContent=score;
 
-      $("#gameResult").innerHTML=
-        `🎉 ${
-          battle
-            ?"대전 승리!"
-            :"3줄 완성!"
-        }
-        <span class='score'>+300P</span>`;
+      $("#gameResult")
+        .innerHTML=
+          `
+            🎉
+            ${
+              battle
+                ?"대전 승리!"
+                :"3줄 완성!"
+            }
+
+            <span class="score">
+              +300P
+            </span>
+          `;
 
       rewardGame(
         battle
@@ -786,28 +1185,40 @@ function startTetris(battle=false){
       return;
     }
 
+
     draw();
   }
 
+
   draw();
+
 
   $("#tLeft").onclick=()=>{
 
     if(!ended)
-      x=Math.max(0,x-1);
+      x=Math.max(
+        0,
+        x-1
+      );
   };
+
 
   $("#tRight").onclick=()=>{
 
     if(!ended)
-      x=Math.min(W-1,x+1);
+      x=Math.min(
+        W-1,
+        x+1
+      );
   };
+
 
   $("#tDrop").onclick=()=>{
 
     if(!ended)
       lock();
   };
+
 
   window.onkeydown=(e)=>{
 
@@ -832,13 +1243,16 @@ function startTetris(battle=false){
     }
   };
 
+
   if(battle){
 
-    aiScore=
-      Math.floor(Math.random()*180);
-
-    $("#aiScore").textContent=aiScore;
+    $("#aiScore")
+      .textContent=
+        Math.floor(
+          Math.random()*180
+        );
   }
+
 
   $("#gameBack").onclick=()=>{
 
@@ -861,33 +1275,53 @@ function startOmok(){
     "⚫ 오목",
     "하니와 번갈아 놓아요. 5개를 먼저 연결하면 +300P",
     `
-      <div class="status-pill" id="omokStatus">
+
+      <div
+        class="status-pill"
+        id="omokStatus"
+      >
         내 차례
       </div>
 
-      <div class="omok" id="omok"></div>
+      <div
+        class="omok"
+        id="omok"
+      ></div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
 
-  const board=Array(N*N).fill(0);
 
-  const el=$("#omok");
+  const board=
+    Array(N*N).fill(0);
+
+  const el=
+    $("#omok");
 
   let over=false;
+
 
   function draw(){
 
     el.innerHTML="";
 
+
     board.forEach((v,i)=>{
 
-      const b=document.createElement("button");
+      const b=
+        document.createElement("button");
 
       b.className=
         v===1
@@ -896,20 +1330,31 @@ function startOmok(){
             ?"white"
             :"";
 
-      b.onclick=()=>player(i);
+      b.onclick=
+        ()=>player(i);
 
       el.appendChild(b);
     });
   }
 
+
   function win(p){
 
-    for(let i=0;i<board.length;i++){
+    for(
+      let i=0;
+      i<board.length;
+      i++
+    ){
 
-      if(board[i]!==p)continue;
+      if(board[i]!==p)
+        continue;
 
-      const r=Math.floor(i/N);
-      const c=i%N;
+      const r=
+        Math.floor(i/N);
+
+      const c=
+        i%N;
+
 
       for(
         const [dr,dc]
@@ -923,10 +1368,46 @@ function startOmok(){
 
         let n=1;
 
-        for(let s=1;s<5;s++){
 
-          const rr=r+dr*s;
-          const cc=c+dc*s;
+        for(
+          let s=1;
+          s<5;
+          s++
+        ){
+
+          const rr=
+            r+dr*s;
+
+          const cc=
+            c+dc*s;
+
+
+          if(
+            rr>=0 &&
+            rr<N &&
+            cc>=0 &&
+            cc<N &&
+            board[rr*N+cc]===p
+          ){
+            n++;
+          }else{
+            break;
+          }
+        }
+
+
+        for(
+          let s=1;
+          s<5;
+          s++
+        ){
+
+          const rr=
+            r-dr*s;
+
+          const cc=
+            c-dc*s;
+
 
           if(
             rr>=0 &&
@@ -941,23 +1422,6 @@ function startOmok(){
           }
         }
 
-        for(let s=1;s<5;s++){
-
-          const rr=r-dr*s;
-          const cc=c-dc*s;
-
-          if(
-            rr>=0 &&
-            rr<N &&
-            cc>=0 &&
-            cc<N &&
-            board[rr*N+cc]===p
-          ){
-            n++;
-          }else{
-            break;
-          }
-        }
 
         if(n>=5)
           return true;
@@ -967,42 +1431,70 @@ function startOmok(){
     return false;
   }
 
+
   async function player(i){
 
-    if(over||board[i])
+    if(
+      over ||
+      board[i]
+    ){
       return;
+    }
+
 
     board[i]=1;
 
     draw();
 
+
     if(win(1)){
 
       over=true;
 
-      $("#omokStatus").textContent="승리!";
+      $("#omokStatus")
+        .textContent="승리!";
 
-      $("#gameResult").innerHTML=
-        "🎉 오목 승리! <span class='score'>+300P</span>";
+      $("#gameResult")
+        .innerHTML=
+          `
+            🎉 오목 승리!
+            <span class="score">
+              +300P
+            </span>
+          `;
 
-      await rewardGame("오목",300);
+      await rewardGame(
+        "오목",
+        300
+      );
 
       return;
     }
 
-    $("#omokStatus").textContent=
-      "하니 생각 중…";
+
+    $("#omokStatus")
+      .textContent=
+        "하니 생각 중…";
+
 
     setTimeout(async()=>{
 
       if(over)return;
 
+
       const empty=
         board
-          .map((v,j)=>v?null:j)
-          .filter(v=>v!==null);
+          .map((v,j)=>
+            v ? null : j
+          )
+          .filter(
+            v=>v!==null
+          );
 
-      if(!empty.length)return;
+
+      if(!empty.length)
+        return;
+
 
       const pick=
         empty[
@@ -1011,104 +1503,160 @@ function startOmok(){
           )
         ];
 
+
       board[pick]=2;
 
       draw();
+
 
       if(win(2)){
 
         over=true;
 
-        $("#omokStatus").textContent=
-          "하니 승리";
+        $("#omokStatus")
+          .textContent=
+            "하니 승리";
 
-        $("#gameResult").textContent=
-          "😢 하니가 이겼어요!";
+        $("#gameResult")
+          .textContent=
+            "😢 하니가 이겼어요!";
 
       }else{
 
-        $("#omokStatus").textContent=
-          "내 차례";
+        $("#omokStatus")
+          .textContent=
+            "내 차례";
       }
 
     },350);
   }
 
+
   draw();
 
-  $("#gameBack").onclick=backGames;
+  $("#gameBack").onclick=
+    backGames;
 }
 
 
-/* =========================
-   사천성
-========================= */
+/* =========================================================
+   🀄 사천성
+   완전히 새로 만든 버전
+========================================================= */
 
 function startMahjong(){
 
   const ROWS=6;
   const COLS=6;
 
+  /*
+   * 18종 × 2개 = 36칸
+   * 모든 문양은 완전히 동일한 규칙
+   */
   const icons=[
-    "🐰","🍎","⭐","🍀",
-    "🌸","🍒","🍋","🍉",
-    "🐱","🐶","🦊","🐼",
-    "🍩","🍔","🍓","🥝",
-    "🌙","☀️"
+    "🌸",
+    "🍎",
+    "⭐",
+    "🍀",
+    "🍒",
+    "🍋",
+    "🍉",
+    "🐰",
+    "🐱",
+    "🐶",
+    "🦊",
+    "🐼",
+    "🍩",
+    "🍔",
+    "🍓",
+    "🥝",
+    "🌙",
+    "☀️"
   ];
 
-  let tiles=
-    [...icons,...icons]
-      .sort(()=>Math.random()-.5);
+
+  let tiles=[];
 
   let selected=[];
+
   let matched=0;
+
   let locked=false;
 
+
+  /*
+   * 판 생성
+   */
+  function makeBoard(){
+
+    tiles=
+      [...icons,...icons]
+        .sort(
+          ()=>Math.random()-.5
+        );
+
+    selected=[];
+
+    matched=0;
+
+    locked=false;
+  }
+
+
+  makeBoard();
+
+
   shell(
-    "🀄 사천성 대전",
-    "같은 패 두 개를 연결해서 없애세요. 전부 없애면 +500P",
+    "🀄 사천성",
+    "같은 문양 2개를 연결해서 없애세요!",
     `
+
       <div class="status-pill">
+
         남은 패
-        <b id="mahLeft">${tiles.length}</b>
+        <b id="mahLeft">
+          ${tiles.length}
+        </b>
+
       </div>
 
-      <div class="mahjong-board" id="mahjong"></div>
+      <div
+        class="mahjong-board"
+        id="mahjong"
+      ></div>
 
-      <div id="gameResult" class="result">
-        같은 그림 두 개를 골라보세요.
+      <div
+        id="gameResult"
+        class="result"
+      >
+        같은 문양 두 개를 골라보세요.
       </div>
 
-      <button class="game-back" id="gameBack">
+      <button
+        class="game-btn"
+        id="mahShuffle"
+      >
+        🔀 막히면 판 섞기
+      </button>
+
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
 
-  const boardEl=$("#mahjong");
 
-  function draw(){
+  const boardEl=
+    $("#mahjong");
 
-    boardEl.innerHTML="";
 
-    tiles.forEach((v,i)=>{
-
-      const b=document.createElement("button");
-
-      b.className=
-        "tile"+
-        (v===null?" matched":"")+
-        (selected.includes(i)?" selected":"");
-
-      b.textContent=v||"";
-
-      b.onclick=()=>pick(i);
-
-      boardEl.appendChild(b);
-    });
-  }
-
+  /*
+   * 실제 보드 안에 있는지
+   */
   function inside(r,c){
 
     return(
@@ -1121,33 +1669,57 @@ function startMahjong(){
 
 
   /*
-    사천성 연결 판정
-
-    - 직선 연결
-    - 1번 꺾기
-    - 2번 꺾기
-    - 보드 바깥 한 칸까지 통로로 허용
-
-    그래서 가장자리의 같은 꽃도
-    실제 사천성처럼 연결할 수 있습니다.
-  */
-
+   * =========================================
+   * 사천성 연결 검사
+   * =========================================
+   *
+   * 보드:
+   *
+   *       바깥 통로
+   *  ┌─────────────────┐
+   *  │  ┌───────────┐  │
+   *  │  │   6 x 6   │  │
+   *  │  │   게임판  │  │
+   *  │  └───────────┘  │
+   *  └─────────────────┘
+   *
+   * 보드 바깥 한 칸도 통로로 인정.
+   *
+   * 최대 2번 꺾기.
+   */
   function canConnect(a,b){
 
     if(
       a===b ||
       tiles[a]===null ||
-      tiles[b]===null ||
+      tiles[b]===null
+    ){
+      return false;
+    }
+
+
+    /*
+     * 같은 문양이어야 한다.
+     */
+    if(
       tiles[a]!==tiles[b]
     ){
       return false;
     }
 
-    const sr=Math.floor(a/COLS);
-    const sc=a%COLS;
 
-    const tr=Math.floor(b/COLS);
-    const tc=b%COLS;
+    const sr=
+      Math.floor(a/COLS);
+
+    const sc=
+      a%COLS;
+
+    const tr=
+      Math.floor(b/COLS);
+
+    const tc=
+      b%COLS;
+
 
     const dirs=[
       [1,0],
@@ -1156,63 +1728,115 @@ function startMahjong(){
       [0,-1]
     ];
 
-    const minR=-1;
-    const maxR=ROWS;
-
-    const minC=-1;
-    const maxC=COLS;
-
-    const queue=[];
-    const seen=new Map();
 
     /*
-      시작점에서 네 방향으로 출발
-    */
+     * -1 ~ 6까지 사용.
+     *
+     * 즉 보드 밖 테두리도 길로 사용.
+     */
+    const MIN=-1;
+    const MAX_R=ROWS;
+    const MAX_C=COLS;
 
-    for(let d=0;d<4;d++){
 
-      const nr=sr+dirs[d][0];
-      const nc=sc+dirs[d][1];
+    const queue=[];
+
+    /*
+     * 같은 위치를 방문했더라도
+     * 더 적게 꺾어서 도착하면 다시 탐색.
+     */
+    const visited=new Map();
+
+
+    /*
+     * 시작점에서 4방향 출발.
+     */
+    for(
+      let d=0;
+      d<4;
+      d++
+    ){
+
+      const nr=
+        sr+dirs[d][0];
+
+      const nc=
+        sc+dirs[d][1];
+
 
       if(
-        nr<minR ||
-        nr>maxR ||
-        nc<minC ||
-        nc>maxC
+        nr<MIN ||
+        nr>MAX_R ||
+        nc<MIN ||
+        nc>MAX_C
       ){
         continue;
       }
 
+
+      /*
+       * 보드 안에 들어갈 경우
+       * 빈칸만 통과 가능.
+       */
       if(
-        inside(nr,nc) &&
-        !(nr===tr&&nc===tc) &&
-        tiles[nr*COLS+nc]!==null
+        inside(nr,nc)
       ){
-        continue;
+
+        const index=
+          nr*COLS+nc;
+
+
+        /*
+         * 도착점은 통과 가능.
+         */
+        if(
+          index!==b &&
+          tiles[index]!==null
+        ){
+          continue;
+        }
       }
 
-      queue.push([
-        nr,
-        nc,
-        d,
-        0
-      ]);
 
-      seen.set(
-        `${nr},${nc},${d}`,
+      const key=
+        `${nr},${nc},${d}`;
+
+
+      visited.set(
+        key,
         0
       );
+
+
+      queue.push({
+        r:nr,
+        c:nc,
+        dir:d,
+        turns:0
+      });
     }
 
+
+    /*
+     * BFS 시작
+     */
     while(queue.length){
 
-      const [
+      const current=
+        queue.shift();
+
+
+      const {
         r,
         c,
         dir,
         turns
-      ]=queue.shift();
+      }=current;
 
+
+      /*
+       * 도착
+       */
       if(
         r===tr &&
         c===tc
@@ -1220,162 +1844,488 @@ function startMahjong(){
         return true;
       }
 
-      for(let nd=0;nd<4;nd++){
+
+      /*
+       * 네 방향 탐색
+       */
+      for(
+        let nextDir=0;
+        nextDir<4;
+        nextDir++
+      ){
 
         const nr=
-          r+dirs[nd][0];
+          r+dirs[nextDir][0];
 
         const nc=
-          c+dirs[nd][1];
+          c+dirs[nextDir][1];
+
 
         if(
-          nr<minR ||
-          nr>maxR ||
-          nc<minC ||
-          nc>maxC
+          nr<MIN ||
+          nr>MAX_R ||
+          nc<MIN ||
+          nc>MAX_C
         ){
           continue;
         }
 
-        const nextTurns=
-          turns+
-          (nd===dir?0:1);
-
-        if(nextTurns>2)
-          continue;
 
         /*
-          빈칸만 통과 가능.
-          단, 도착 패는 통과 가능.
-        */
+         * 방향이 달라지면 꺾기.
+         */
+        const nextTurns=
+          turns+
+          (
+            nextDir===dir
+              ?0
+              :1
+          );
 
+
+        /*
+         * 최대 2번 꺾기.
+         */
         if(
-          inside(nr,nc) &&
-          !(nr===tr&&nc===tc) &&
-          tiles[nr*COLS+nc]!==null
+          nextTurns>2
         ){
           continue;
         }
+
+
+        /*
+         * 보드 내부의 다른 패는
+         * 통과할 수 없다.
+         */
+        if(
+          inside(nr,nc)
+        ){
+
+          const index=
+            nr*COLS+nc;
+
+
+          if(
+            index!==b &&
+            tiles[index]!==null
+          ){
+            continue;
+          }
+        }
+
 
         const key=
-          `${nr},${nc},${nd}`;
+          `${nr},${nc},${nextDir}`;
 
-        const old=seen.get(key);
 
+        const previous=
+          visited.get(key);
+
+
+        /*
+         * 더 좋은 경로가 이미 있으면
+         * 다시 탐색하지 않음.
+         */
         if(
-          old!==undefined &&
-          old<=nextTurns
+          previous!==undefined &&
+          previous<=nextTurns
         ){
           continue;
         }
 
-        seen.set(
+
+        visited.set(
           key,
           nextTurns
         );
 
-        queue.push([
-          nr,
-          nc,
-          nd,
-          nextTurns
-        ]);
+
+        queue.push({
+          r:nr,
+          c:nc,
+          dir:nextDir,
+          turns:nextTurns
+        });
       }
     }
+
 
     return false;
   }
 
 
-  function clearPair(a,b){
+  /*
+   * 현재 보드에서
+   * 연결 가능한 짝이 있는지 확인.
+   */
+  function findAvailablePair(){
 
-    tiles[a]=null;
-    tiles[b]=null;
+    for(
+      let a=0;
+      a<tiles.length;
+      a++
+    ){
 
-    matched+=2;
+      if(
+        tiles[a]===null
+      ){
+        continue;
+      }
 
-    $("#mahLeft").textContent=
-      String(tiles.length-matched);
+
+      for(
+        let b=a+1;
+        b<tiles.length;
+        b++
+      ){
+
+        if(
+          tiles[b]===null
+        ){
+          continue;
+        }
+
+
+        if(
+          tiles[a]===tiles[b] &&
+          canConnect(a,b)
+        ){
+
+          return [a,b];
+        }
+      }
+    }
+
+
+    return null;
   }
 
 
-  async function pick(i){
+  /*
+   * 현재 보드가 막혔으면
+   * 남은 패들을 자동 재배치.
+   */
+  function shuffleRemaining(){
 
-    if(
-      locked ||
-      tiles[i]===null
+    const remaining=
+      tiles.filter(
+        v=>v!==null
+      );
+
+
+    /*
+     * 같은 개수의 패를 유지하면서
+     * 랜덤 재배치.
+     */
+    for(
+      let i=remaining.length-1;
+      i>0;
+      i--
     ){
-      return;
+
+      const j=
+        Math.floor(
+          Math.random()*(i+1)
+        );
+
+
+      [
+        remaining[i],
+        remaining[j]
+      ]=[
+        remaining[j],
+        remaining[i]
+      ];
     }
 
-    if(
-      selected.length===1 &&
-      selected[0]===i
+
+    let index=0;
+
+
+    for(
+      let i=0;
+      i<tiles.length;
+      i++
     ){
-      return;
+
+      if(
+        tiles[i]!==null
+      ){
+
+        tiles[i]=
+          remaining[index];
+
+        index++;
+      }
     }
 
-    selected.push(i);
-
-    draw();
-
-    if(selected.length<2)
-      return;
-
-    const [a,b]=selected;
 
     selected=[];
 
+    draw();
+  }
+
+
+  /*
+   * 막히지 않는 판을 만들기 위해
+   * 최소 한 번은 연결 가능한 상태 확인.
+   */
+  function ensurePlayable(){
+
+    if(
+      matched>=tiles.length
+    ){
+      return;
+    }
+
+
+    if(
+      !findAvailablePair()
+    ){
+
+      shuffleRemaining();
+    }
+  }
+
+
+  /*
+   * 화면 그리기
+   */
+  function draw(){
+
+    boardEl.innerHTML="";
+
+
+    tiles.forEach(
+      (value,index)=>{
+
+        const button=
+          document.createElement(
+            "button"
+          );
+
+
+        button.className=
+          "tile"+
+          (
+            value===null
+              ?" matched"
+              :""
+          )+
+          (
+            selected.includes(index)
+              ?" selected"
+              :""
+          );
+
+
+        button.textContent=
+          value||"";
+
+
+        button.onclick=
+          ()=>{
+            pick(index);
+          };
+
+
+        boardEl.appendChild(
+          button
+        );
+      }
+    );
+
+
+    $("#mahLeft")
+      .textContent=
+        String(
+          tiles.length-matched
+        );
+  }
+
+
+  /*
+   * 패 선택
+   */
+  async function pick(index){
+
+    if(
+      locked ||
+      tiles[index]===null
+    ){
+      return;
+    }
+
+
+    /*
+     * 같은 칸을 두 번 누른 경우
+     */
+    if(
+      selected.length===1 &&
+      selected[0]===index
+    ){
+      return;
+    }
+
+
+    selected.push(index);
+
+    draw();
+
+
+    /*
+     * 첫 번째 선택
+     */
+    if(
+      selected.length===1
+    ){
+
+      $("#gameResult")
+        .textContent=
+          "같은 문양을 하나 더 선택하세요.";
+
+      return;
+    }
+
+
+    const a=
+      selected[0];
+
+    const b=
+      selected[1];
+
+
+    selected=[];
+
+
+    /*
+     * 같은 문양 + 연결 가능
+     */
     if(
       tiles[a]===tiles[b] &&
       canConnect(a,b)
     ){
 
-      clearPair(a,b);
+      /*
+       * 패 제거
+       */
+      tiles[a]=null;
+
+      tiles[b]=null;
+
+      matched+=2;
+
+
+      $("#gameResult")
+        .textContent=
+          "✨ 연결 성공!";
+
 
       draw();
 
-      $("#gameResult").textContent=
-        "연결 성공!";
 
-      if(matched===tiles.length){
+      /*
+       * 전부 제거
+       */
+      if(
+        matched===tiles.length
+      ){
 
         locked=true;
 
-        $("#gameResult").innerHTML=
-          "🎉 사천성 클리어! <span class='score'>+500P</span>";
+
+        $("#gameResult")
+          .innerHTML=
+            `
+              🎉 사천성 클리어!
+              <span class="score">
+                +500P
+              </span>
+            `;
+
 
         await rewardGame(
           "사천성대전",
           500
         );
+
+
+        return;
       }
+
+
+      /*
+       * 다음에 움직일 수 있는지 검사.
+       * 막혀 있으면 자동으로 섞음.
+       */
+      setTimeout(
+        ensurePlayable,
+        100
+      );
+
 
     }else{
 
+      /*
+       * 연결 실패
+       */
       locked=true;
 
-      $("#gameResult").textContent=
-        "연결할 수 없는 패예요.";
+
+      $("#gameResult")
+        .textContent=
+          "연결할 수 없는 패예요.";
+
 
       draw();
 
-      setTimeout(()=>{
 
-        locked=false;
+      setTimeout(
+        ()=>{
+          locked=false;
 
-        draw();
+          draw();
 
-        $("#gameResult").textContent=
-          "같은 그림 두 개를 골라보세요.";
-
-      },500);
+          $("#gameResult")
+            .textContent=
+              "같은 문양 두 개를 골라보세요.";
+        },
+        500
+      );
     }
   }
 
+
+  /*
+   * 수동 섞기
+   */
+  $("#mahShuffle").onclick=()=>{
+
+    if(locked)
+      return;
+
+    shuffleRemaining();
+
+    $("#gameResult")
+      .textContent=
+        "🔀 패를 다시 섞었어요!";
+  };
+
+
   draw();
 
-  $("#gameBack").onclick=backGames;
+  /*
+   * 처음부터 막힌 판이면
+   * 자동으로 한 번 섞음.
+   */
+  setTimeout(
+    ensurePlayable,
+    100
+  );
+
+
+  $("#gameBack").onclick=
+    backGames;
 }
 
 
@@ -1397,6 +2347,7 @@ function startSudoku(){
     0,0,0,0,8,0,0,7,9
   ];
 
+
   const solution=[
     5,3,4,6,7,8,9,1,2,
     6,7,2,1,9,5,3,4,8,
@@ -1409,62 +2360,94 @@ function startSudoku(){
     3,4,5,2,8,6,1,7,9
   ];
 
+
   shell(
     "🔢 하니도쿠",
     "빈칸을 눌러 숫자를 넣고 완성하면 +350P",
     `
-      <div class="sudoku" id="sudoku"></div>
 
-      <div id="gameResult" class="result"></div>
+      <div
+        class="sudoku"
+        id="sudoku"
+      ></div>
 
-      <button class="game-back" id="gameBack">
+      <div
+        id="gameResult"
+        class="result"
+      ></div>
+
+      <button
+        class="game-back"
+        id="gameBack"
+      >
         ← 게임 목록
       </button>
+
     `
   );
 
-  const board=$("#sudoku");
 
-  const values=[...puzzle];
+  const board=
+    $("#sudoku");
+
+  const values=
+    [...puzzle];
 
   let selected=-1;
+
 
   function draw(){
 
     board.innerHTML="";
 
-    values.forEach((v,i)=>{
 
-      const b=document.createElement("button");
+    values.forEach(
+      (v,i)=>{
 
-      b.textContent=v||"";
+        const b=
+          document.createElement(
+            "button"
+          );
 
-      if(puzzle[i])
-        b.classList.add("given");
 
-      if(i===selected)
-        b.classList.add("selected");
+        b.textContent=
+          v||"";
 
-      b.onclick=()=>{
 
-        if(!puzzle[i]){
+        if(puzzle[i])
+          b.classList.add("given");
 
-          selected=i;
 
-          draw();
-        }
-      };
+        if(i===selected)
+          b.classList.add("selected");
 
-      board.appendChild(b);
-    });
+
+        b.onclick=()=>{
+
+          if(!puzzle[i]){
+
+            selected=i;
+
+            draw();
+          }
+        };
+
+
+        board.appendChild(b);
+      }
+    );
   }
+
 
   function handler(e){
 
     if(selected<0)
       return;
 
-    const n=Number(e.key);
+
+    const n=
+      Number(e.key);
+
 
     if(
       n>=1 &&
@@ -1476,9 +2459,11 @@ function startSudoku(){
 
       draw();
 
+
       if(
         values.every(
-          (v,i)=>v===solution[i]
+          (v,i)=>
+            v===solution[i]
         )
       ){
 
@@ -1487,8 +2472,16 @@ function startSudoku(){
           handler
         );
 
-        $("#gameResult").innerHTML=
-          "🎉 하니도쿠 완성! <span class='score'>+350P</span>";
+
+        $("#gameResult")
+          .innerHTML=
+            `
+              🎉 하니도쿠 완성!
+              <span class="score">
+                +350P
+              </span>
+            `;
+
 
         rewardGame(
           "하니도쿠",
@@ -1498,12 +2491,15 @@ function startSudoku(){
     }
   }
 
+
   document.addEventListener(
     "keydown",
     handler
   );
 
+
   draw();
+
 
   $("#gameBack").onclick=()=>{
 
@@ -1518,114 +2514,163 @@ function startSudoku(){
 
 
 /* =========================
-   로그인 / 회원가입
+   로그인
 ========================= */
 
 document
   .querySelectorAll(".tab")
   .forEach(btn=>{
 
-    btn.addEventListener("click",()=>{
+    btn.addEventListener(
+      "click",
+      ()=>{
 
-      document
-        .querySelectorAll(".tab")
-        .forEach(x=>x.classList.remove("active"));
+        document
+          .querySelectorAll(".tab")
+          .forEach(x=>
+            x.classList.remove("active")
+          );
 
-      btn.classList.add("active");
 
-      const reg=
-        btn.dataset.tab==="register";
+        btn.classList.add("active");
 
-      $("#loginForm")
-        .classList
-        .toggle("hidden",reg);
 
-      $("#registerForm")
-        .classList
-        .toggle("hidden",!reg);
+        const reg=
+          btn.dataset.tab==="register";
 
-      $("#authMessage").textContent="";
-    });
+
+        $("#loginForm")
+          .classList
+          .toggle(
+            "hidden",
+            reg
+          );
+
+
+        $("#registerForm")
+          .classList
+          .toggle(
+            "hidden",
+            !reg
+          );
+
+
+        $("#authMessage")
+          .textContent="";
+      }
+    );
   });
 
 
-$("#loginForm")?.addEventListener(
-  "submit",
-  async e=>{
+$("#loginForm")
+  ?.addEventListener(
+    "submit",
+    async e=>{
 
-    e.preventDefault();
+      e.preventDefault();
 
-    try{
 
-      const data=await api(
-        "/api/login",
-        {
-          method:"POST",
-          body:JSON.stringify({
-            nickname:$("#loginNickname").value,
-            pin:$("#loginPin").value
-          })
-        }
-      );
+      try{
 
-      render(data.character);
+        const data=
+          await api(
+            "/api/login",
+            {
+              method:"POST",
+              body:JSON.stringify({
+                nickname:
+                  $("#loginNickname").value,
 
-      $("#authView").classList.add("hidden");
+                pin:
+                  $("#loginPin").value
+              })
+            }
+          );
 
-      $("#mainView").classList.remove("hidden");
 
-      showHome();
+        render(data.character);
 
-    }catch(err){
 
-      showMessage(
-        $("#authMessage"),
-        err.message,
-        true
-      );
+        $("#authView")
+          .classList
+          .add("hidden");
+
+
+        $("#mainView")
+          .classList
+          .remove("hidden");
+
+
+        showHome();
+
+
+      }catch(err){
+
+        showMessage(
+          $("#authMessage"),
+          err.message,
+          true
+        );
+      }
     }
-  }
-);
+  );
 
 
-$("#registerForm")?.addEventListener(
-  "submit",
-  async e=>{
+$("#registerForm")
+  ?.addEventListener(
+    "submit",
+    async e=>{
 
-    e.preventDefault();
+      e.preventDefault();
 
-    try{
 
-      const data=await api(
-        "/api/register",
-        {
-          method:"POST",
-          body:JSON.stringify({
-            nickname:$("#regNickname").value,
-            pin:$("#regPin").value,
-            characterName:$("#regCharacter").value
-          })
-        }
-      );
+      try{
 
-      render(data.character);
+        const data=
+          await api(
+            "/api/register",
+            {
+              method:"POST",
+              body:JSON.stringify({
+                nickname:
+                  $("#regNickname").value,
 
-      $("#authView").classList.add("hidden");
+                pin:
+                  $("#regPin").value,
 
-      $("#mainView").classList.remove("hidden");
+                characterName:
+                  $("#regCharacter").value
+              })
+            }
+          );
 
-      showHome();
 
-    }catch(err){
+        render(data.character);
 
-      showMessage(
-        $("#authMessage"),
-        err.message,
-        true
-      );
+
+        $("#authView")
+          .classList
+          .add("hidden");
+
+
+        $("#mainView")
+          .classList
+          .remove("hidden");
+
+
+        showHome();
+
+
+      }catch(err){
+
+        showMessage(
+          $("#authMessage"),
+          err.message,
+          true
+        );
+      }
     }
-  }
-);
+  );
 
 
 /* =========================
@@ -1642,24 +2687,30 @@ document
 
         btn.disabled=true;
 
+
         try{
 
-          const data=await api(
-            "/api/action",
-            {
-              method:"POST",
-              body:JSON.stringify({
-                action:btn.dataset.action
-              })
-            }
-          );
+          const data=
+            await api(
+              "/api/action",
+              {
+                method:"POST",
+                body:JSON.stringify({
+                  action:
+                    btn.dataset.action
+                })
+              }
+            );
+
 
           render(data.character);
+
 
           showMessage(
             $("#actionMessage"),
             data.message
           );
+
 
         }catch(err){
 
@@ -1668,6 +2719,7 @@ document
             err.message,
             true
           );
+
 
         }finally{
 
@@ -1682,25 +2734,26 @@ document
    로그아웃
 ========================= */
 
-$("#logoutBtn")?.addEventListener(
-  "click",
-  async()=>{
+$("#logoutBtn")
+  ?.addEventListener(
+    "click",
+    async()=>{
 
-    try{
+      try{
 
-      await api(
-        "/api/logout",
-        {
-          method:"POST"
-        }
-      );
+        await api(
+          "/api/logout",
+          {
+            method:"POST"
+          }
+        );
 
-    }finally{
+      }finally{
 
-      location.reload();
+        location.reload();
+      }
     }
-  }
-);
+  );
 
 
 /* =========================
@@ -1715,7 +2768,9 @@ document
       "click",
       ()=>{
 
-        const p=btn.dataset.page;
+        const p=
+          btn.dataset.page;
+
 
         if(p==="home")
           showHome();
@@ -1738,23 +2793,27 @@ async function enter(){
 
   try{
 
-    const data=await api(
-      "/api/me"
-    );
+    const data=
+      await api("/api/me");
+
 
     $("#authView")
       .classList
       .add("hidden");
 
+
     $("#mainView")
       .classList
       .remove("hidden");
 
+
     render(data.character);
+
 
     showHome();
 
   }catch{}
 }
+
 
 enter().catch(()=>{});
