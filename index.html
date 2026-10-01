@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#67c7f3" />
+  <title>하니 키우기</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="app">
+    <section id="authView" class="screen">
+      <div class="brand">
+        <div class="logo">🐰</div>
+        <h1>하니 키우기</h1>
+        <p>나만의 하니를 키워보세요 💙</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="tabs">
+          <button class="tab active" data-tab="login">로그인</button>
+          <button class="tab" data-tab="register">처음 시작</button>
+        </div>
+
+        <form id="loginForm" class="form">
+          <label>닉네임<input id="loginNickname" required autocomplete="username" /></label>
+          <label>PIN<input id="loginPin" required inputmode="numeric" maxlength="6" type="password" /></label>
+          <button class="primary">로그인</button>
+        </form>
+
+        <form id="registerForm" class="form hidden">
+          <p class="notice">하니방에서 사용하는 닉네임으로 만들어주세요.</p>
+          <label>닉네임<input id="regNickname" required /></label>
+          <label>PIN <small>4~6자리 숫자</small><input id="regPin" required inputmode="numeric" maxlength="6" type="password" /></label>
+          <label>첫 하니 이름<input id="regCharacter" placeholder="예: 송이하니" required /></label>
+          <button class="primary">첫 하니 만들기</button>
+        </form>
+        <p id="authMessage" class="message"></p>
+      </div>
+    </section>
+
+    <section id="mainView" class="hidden">
+      <header class="topbar">
+        <div>
+          <strong>🐰 하니 키우기</strong>
+          <span class="online">● 온라인 12명</span>
+        </div>
+        <button id="logoutBtn" class="icon-btn">↪</button>
+      </header>
+
+      <main class="content">
+        <div class="announcement">📢 <b>하니 키우기 오픈!</b><span>재미있게 하니를 키워보세요 💙</span></div>
+
+        <section class="hani-card">
+          <div class="hani-head">
+            <div class="avatar">🐰</div>
+            <div>
+              <div id="generation" class="muted">토끼콩 · 1세대</div>
+              <h2 id="characterName">하니</h2>
+              <p>오늘도 열심히 살아가는 중 ✨</p>
+            </div>
+            <div class="level-badge">Lv.<span id="level">1</span></div>
+          </div>
+
+          <div class="stats">
+            <div><span>💰 포인트</span><b id="points">0P</b></div>
+            <div><span>⚡ 체력</span><b><span id="stamina">100</span>/100</b></div>
+            <div><span>🍚 포만감</span><b><span id="fullness">100</span>/100</b></div>
+            <div><span>📏 몸집</span><b><span id="bodySize">1</span>단계</b></div>
+          </div>
+
+          <div class="progress"><div id="levelProgress"></div></div>
+          <div class="progress-caption"><span>다음 레벨까지</span><span id="nextLevel">1000P</span></div>
+        </section>
+
+        <section class="section">
+          <div class="section-title"><h3>생활 행동</h3><span>오늘 <b id="todayActions">0</b>/20회</span></div>
+          <div class="action-grid">
+            <button class="action" data-action="work"><strong>💼 일하기</strong><span>+500P · 체력 -8 · 포만감 -7</span></button>
+            <button class="action" data-action="cook"><strong>🍳 요리하기</strong><span>포만감 +50 · 체력 -5</span></button>
+            <button class="action" data-action="rest"><strong>🛌 쉬기</strong><span>체력 +40 · 포만감 -4</span></button>
+            <button class="action" data-action="fish"><strong>🎣 낚시하기</strong><span>+200P · 체력 -3</span></button>
+          </div>
+          <p id="actionMessage" class="message"></p>
+        </section>
+
+        <section class="section">
+          <div class="section-title"><h3>오늘의 하니력</h3><span>0 / 5</span></div>
+          <div class="mission">☑ 생활 행동 3회 <b>+1</b></div>
+          <div class="mission">☐ 개인게임 2회 <b>+1</b></div>
+          <div class="mission">☐ 낚시 5회 <b>+1</b></div>
+          <div class="mission">☐ 레벨업 1회 <b>+1</b></div>
+          <div class="mission">☐ 직접 방 개최 후 정상 종료 <b>+1</b></div>
+        </section>
+
+        <section class="section">
+          <div class="section-title"><h3>하니방 소식</h3><span>최근</span></div>
+          <article class="news"><b>💙 하니 키우기</b><span>방금 전</span><p>새로운 하니가 태어났어요!</p></article>
+          <article class="news"><b>🎣 낚시</b><span>5분 전</span><p>오늘도 낚시를 즐겨보세요.</p></article>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="active">🐰<span>내 하니</span></button>
+        <button>🎮<span>게임</span></button>
+        <button>🗺️<span>영토전</span></button>
+        <button>💞<span>관계·병</span></button>
+        <button>📖<span>기록</span></button>
+      </nav>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
