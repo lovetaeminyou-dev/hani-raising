@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS characters (
   stamina INTEGER NOT NULL DEFAULT 100,
   fullness INTEGER NOT NULL DEFAULT 100,
   body_size INTEGER NOT NULL DEFAULT 1,
+  evolution_stage INTEGER NOT NULL DEFAULT 1,
+  title TEXT NOT NULL DEFAULT '초보 하니',
   today_actions INTEGER NOT NULL DEFAULT 0,
   today_fishing INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -30,4 +32,26 @@ CREATE TABLE IF NOT EXISTS sessions (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS rooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  host_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  game_type TEXT NOT NULL DEFAULT '사천성',
+  bet_points INTEGER NOT NULL DEFAULT 100,
+  status TEXT NOT NULL DEFAULT 'waiting',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (host_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS game_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  game TEXT NOT NULL,
+  points INTEGER NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_characters_rank ON characters(points DESC, level DESC);
+CREATE INDEX IF NOT EXISTS idx_game_logs_user_date ON game_logs(user_id, created_at);
