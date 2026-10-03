@@ -1,10 +1,14 @@
 {
   "name": "hani-raising",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
+  "description": "시무방 하니 키우기 - 신체 진화, TOP 5 랭킹, 포인트 내기 배틀룸",
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute hani-db --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute hani-db --local --file=./schema.sql"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
