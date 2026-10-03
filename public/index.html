@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="theme-color" content="#67c7f3" />
-  <title>하니 키우기 · 시무방</title>
+  <title>하니 키우기 온라인 · 시무방</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
@@ -12,8 +12,8 @@
   <section id="authView" class="screen">
     <div class="brand">
       <div class="logo">🐰</div>
-      <h1>하니 키우기</h1>
-      <p>시무방 · 나만의 하니를 키워보세요 💙</p>
+      <h1>하니 키우기 온라인</h1>
+      <p>시무방 · 신체 진화 & 포인트 대결 💙</p>
     </div>
     <div class="auth-card">
       <div class="tabs">
@@ -21,15 +21,20 @@
         <button class="tab" data-tab="register">처음 시작</button>
       </div>
       <form id="loginForm" class="form">
-        <label>닉네임<input id="loginNickname" required autocomplete="username" /></label>
-        <label>PIN<input id="loginPin" required inputmode="numeric" maxlength="6" type="password" /></label>
+        <label for="loginNickname">닉네임</label>
+        <input id="loginNickname" required autocomplete="username" />
+        <label for="loginPin">PIN</label>
+        <input id="loginPin" required inputmode="numeric" maxlength="6" type="password" autocomplete="current-password" />
         <button class="primary">로그인</button>
       </form>
       <form id="registerForm" class="form hidden">
         <p class="notice">시무방에서 사용하는 닉네임으로 만들어주세요.</p>
-        <label>닉네임<input id="regNickname" required /></label>
-        <label>PIN <small>4~6자리 숫자</small><input id="regPin" required inputmode="numeric" maxlength="6" type="password" /></label>
-        <label>첫 하니 이름<input id="regCharacter" placeholder="예: 송이하니" required /></label>
+        <label for="regNickname">닉네임</label>
+        <input id="regNickname" required />
+        <label for="regPin">PIN <small>4~6자리 숫자</small></label>
+        <input id="regPin" required inputmode="numeric" maxlength="6" type="password" autocomplete="new-password" />
+        <label for="regCharacter">첫 하니 이름</label>
+        <input id="regCharacter" placeholder="예: 송이하니" required />
         <button class="primary">첫 하니 만들기</button>
       </form>
       <p id="authMessage" class="message"></p>
@@ -38,33 +43,59 @@
 
   <section id="mainView" class="hidden">
     <header class="topbar">
-      <div><strong>🐰 하니 키우기</strong><span class="online">● 시무방</span></div>
+      <div><strong>🐰 하니 키우기</strong><span class="online">● 시무방 온라인</span></div>
       <button id="logoutBtn" class="icon-btn">↪</button>
     </header>
 
     <div id="homePage">
       <main class="content">
-        <div class="announcement">📢 <b>시무방 하니 키우기</b><span>게임하고 하니를 쑥쑥 키워보세요 💙</span></div>
+        <div class="announcement">📢 <b>v2.0 업데이트!</b><span>레벨업으로 신체를 진화시키고 포인트 내기 방을 만들어보세요! 💙</span></div>
+        
         <section class="hani-card">
           <div class="hani-head">
-            <div class="avatar">🐰</div>
             <div>
-              <div id="generation" class="muted">토끼콩 · 1세대</div>
+              <span id="titleBadge" class="title-badge">🐰 앙증맞은 아기 하니</span>
               <h2 id="characterName">하니</h2>
-              <p>오늘도 열심히 살아가는 중 ✨</p>
             </div>
             <div class="level-badge">Lv.<span id="level">1</span></div>
           </div>
+
+          <!-- 그래픽 진화 엔진 레이어 -->
+          <div class="hani-display-box">
+            <div class="hani-container" id="haniAvatar" data-stage="1">
+              <div class="hani-aura"></div>
+              <div class="hani-wings"><span class="wing-l">🪽</span><span class="wing-r">🪽</span></div>
+              <div class="hani-body">
+                <div class="hani-ears"><div class="ear"></div><div class="ear"></div></div>
+                <div class="hani-face">( • ɞ • )</div>
+                <div class="hani-limbs">
+                  <div class="arm-l"></div><div class="arm-r"></div>
+                  <div class="leg-l"></div><div class="leg-r"></div>
+                </div>
+              </div>
+            </div>
+            <div id="evolutionNotice" class="evolution-text">1단계 : 아기 토끼</div>
+          </div>
+
           <div class="stats">
             <div><span>💰 포인트</span><b id="points">0P</b></div>
             <div><span>⚡ 체력</span><b><span id="stamina">100</span>/100</b></div>
             <div><span>🍚 포만감</span><b><span id="fullness">100</span>/100</b></div>
-            <div><span>📏 몸집</span><b><span id="bodySize">1</span>단계</b></div>
+            <div><span>📏 몸집 단계</span><b><span id="bodySize">1</span>단계</b></div>
           </div>
           <div class="progress"><div id="levelProgress"></div></div>
           <div class="progress-caption"><span>다음 레벨까지</span><span id="nextLevel">1000P</span></div>
         </section>
 
+        <!-- TOP 5 랭킹 (업적 보상 노출) -->
+        <section class="section">
+          <div class="section-title"><h3>🏆 TOP 5 랭킹 (명예의 전당)</h3><span>실시간</span></div>
+          <div id="rankingList" class="ranking-list">
+            <!-- JS로 1~5위 렌더링 -->
+          </div>
+        </section>
+
+        <!-- 생활 행동 -->
         <section class="section">
           <div class="section-title"><h3>생활 행동</h3><span>오늘 <b id="todayActions">0</b>/20회</span></div>
           <div class="action-grid">
@@ -75,29 +106,32 @@
           </div>
           <p id="actionMessage" class="message"></p>
         </section>
+      </main>
+    </div>
 
+    <!-- 포인트 내기 방 (영토전/대결) -->
+    <div id="territoryPage" class="hidden">
+      <main class="content">
         <section class="section">
-          <div class="section-title"><h3>오늘의 하니력</h3><span>게임으로 +P</span></div>
-          <div class="mission">🎮 개인게임 2회 <b>+1</b></div>
-          <div class="mission">🎣 낚시 5회 <b>+1</b></div>
-          <div class="mission">⬆️ 레벨업 1회 <b>+1</b></div>
-        </section>
-        <section class="section">
-          <div class="section-title"><h3>시무방 소식</h3><span>최근</span></div>
-          <article class="news"><b>💙 하니 키우기</b><span>방금 전</span><p>게임을 플레이하면 하니 포인트를 받을 수 있어요.</p></article>
+          <div class="section-title">
+            <h3>⚔️ 포인트 내기 대결 방</h3>
+            <button id="createRoomBtn" class="primary" style="padding: 8px 14px; font-size: 13px;">+ 방 만들기</button>
+          </div>
+          <div id="roomList">
+            <!-- JS로 생성된 방 노출 -->
+          </div>
         </section>
       </main>
     </div>
 
     <div id="gamePage" class="hidden"></div>
-    <div id="territoryPage" class="hidden"><main class="game-view"><div class="empty-card"><h2>🗺️ 영토전</h2><p>시즌 영토전 준비 중이에요.</p></div></main></div>
     <div id="relationshipPage" class="hidden"><main class="game-view"><div class="empty-card"><h2>💞 관계</h2><p>찌르기 · 커플 · 방 기능을 준비 중이에요.</p></div></main></div>
     <div id="recordPage" class="hidden"><main class="game-view"><div class="empty-card"><h2>📖 기록</h2><p>하니 성장 기록을 준비 중이에요.</p></div></main></div>
 
     <nav class="bottom-nav">
       <button class="active" data-page="home">🐰<span>내 하니</span></button>
-      <button data-page="game">🎮<span>게임</span></button>
-      <button data-page="territory">🗺️<span>영토전</span></button>
+      <button data-page="game">🎮<span>게임방</span></button>
+      <button data-page="territory">⚔️<span>내기대결</span></button>
       <button data-page="relationship">💞<span>관계</span></button>
       <button data-page="record">📖<span>기록</span></button>
     </nav>
